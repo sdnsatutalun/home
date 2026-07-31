@@ -81,6 +81,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 15px 0;
+    position: relative; /* Penting untuk posisi menu mobile */
 }
 
 .brand {
@@ -116,6 +117,7 @@ header {
     letter-spacing: 1px;
 }
 
+/* Navigasi Desktop (Default) */
 .nav-links {
     display: flex;
     align-items: center;
@@ -125,19 +127,19 @@ header {
 .nav-links a {
     font-size: 15px;
     font-weight: 500;
-    color: #1A1A1A;
+    color: #F9F5EC;
     transition: 0.2s;
     border-bottom: 2px solid transparent;
     padding-bottom: 3px;
 }
 
 .nav-links a:hover {
-    color: #7B1818;
+    color: #D4A017;
     border-color: #D4A017;
 }
 
 .nav-links a.active {
-    color: #7B1818;
+    color: #D4A017;
 }
 
 .btn-nav-cta {
@@ -148,10 +150,11 @@ header {
 }
 
 .btn-nav-cta:hover {
-    background: #1A1A1A;
-    color: #D4A017 !important;
+    background: #D4A017;
+    color: #1A1A1A !important;
 }
 
+/* Elemen Mobile (Disembunyikan di Desktop) */
 .menu-toggle {
     display: none;
     flex-direction: column;
@@ -164,7 +167,11 @@ header {
 .menu-toggle span {
     width: 25px;
     height: 3px;
-    background: #F9F5EC;
+    background: #F9F5EC; /* Warna hamburger putih krem agar cocok dengan header gelap */
+}
+
+.nav-links-mobile {
+    display: none; /* Disembunyikan di desktop */
 }
 
 /* Hero */
@@ -577,70 +584,52 @@ footer {
 
 /* Responsive */
 @media (max-width: 900px) {
-    .top-bar-inner span:nth-child(1) {
-        display: none;
-    }
-
+    /* Sembunyikan menu desktop */
     .nav-links {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background: #F9F5EC;
-        flex-direction: column;
-        padding: 20px;
-        gap: 20px;
-        border-bottom: 1px solid #ddd;
         display: none;
     }
 
-    .nav-links.active {
-        display: flex;
-    }
-
+    /* Tampilkan tombol hamburger */
     .menu-toggle {
         display: flex;
     }
 
-    .hero-grid,
-    .intro-grid,
-    .news-grid,
-    .contact-grid,
-    .footer-inner {
-        grid-template-columns: 1fr;
-        gap: 40px;
-    }
-
-    .hero-text h1 {
-        font-size: 36px;
-    }
-
-    .hero-quote-card {
+    /* Gaya menu mobile saat dibuka */
+    .nav-links-mobile {
+        position: absolute;
+        top: 100%;
         left: 0;
-        bottom: -20px;
-        box-shadow: 5px 5px 0 #7B1818;
+        width: 100%;
+        background: #1A1A1A; /* Samakan dengan header */
+        flex-direction: column;
+        padding: 20px;
+        gap: 15px;
+        border-bottom: 3px solid #7B1818;
+        border-top: 1px solid #333;
+        display: none;
+        z-index: 99;
     }
 
-    .stats-row {
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
+    .nav-links-mobile.active {
+        display: flex; /* Muncul saat hamburger diklik */
     }
 
-    .program-grid {
-        grid-template-columns: 1fr 1fr;
+    .nav-links-mobile a {
+        font-size: 16px;
+        font-weight: 500;
+        color: #F9F5EC;
+        padding: 10px 0;
+        border-bottom: 1px solid #333;
     }
 
-    .gallery-grid {
-        grid-template-columns: 1fr 1fr;
+    .nav-links-mobile a.active {
+        color: #D4A017;
     }
 
-    .gallery-wide {
-        grid-column: span 1;
-    }
-
-    .news-list {
-        border-left: none;
-        padding-left: 0;
+    .nav-links-mobile .btn-nav-cta {
+        margin-top: 10px;
+        text-align: center;
+        border-bottom: none !important;
     }
 }
 
