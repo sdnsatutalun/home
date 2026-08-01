@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - SDN 1 Talun</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #eef2f5; margin: 0; }
+    .container { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 1.3rem; }
+    .form-group { margin-bottom: 15px; }
+    label { font-weight: 600; display: block; margin-bottom: 6px; color: #34495e; }
+    input[type="number"], input[type="file"] { width: 100%; padding: 10px; font-size: 15px; border: 1px solid #ccc; border-radius: 6px; }
+    button { width: 100%; padding: 12px; background: #007bff; color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; transition: background 0.2s; }
+    button:hover { background: #0056b3; }
+    button:disabled { background: #6c757d; cursor: not-allowed; }
+    .btn-green { background: #28a745; }
+    .btn-green:hover { background: #218838; }
+    .preview-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+    .preview-box { border: 1px solid #ddd; padding: 8px; border-radius: 6px; background: #f9f9f9; text-align: center; }
+    .preview-box img { max-width: 100%; height: 100px; object-fit: cover; border-radius: 4px; display: block; margin-top: 5px; }
+    #statusGaleri { margin-top: 10px; font-weight: 600; color: #007bff; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 style="text-align: center; color: #2c3e50; font-size: 1.8rem; margin: 10px 0;">Panel Admin SDN 1 Talun</h1>
+
+    <!-- SECTION 1: STATISTIK SEKOLAH -->
+    <div class="card">
+      <h2>1. Kelola Data Statistik</h2>
+      
+      <div class="form-group">
+        <label for="siswaAktif">Jumlah Siswa Aktif:</label>
+        <input type="number" id="siswaAktif" placeholder="Memuat data...">
+      </div>
+
+      <div class="form-group">
+        <label for="guruAktif">Tenaga Pendidik:</label>
+        <input type="number" id="guruAktif" placeholder="Memuat data...">
+      </div>
+
+      <div class="form-group">
+        <label for="tahunPengabdian">Tahun Pengabdian:</label>
+        <input type="number" id="tahunPengabdian" placeholder="Memuat data...">
+      </div>
+
+      <button id="btnSimpanStat">Simpan Perubahan Statistik</button>
+    </div>
+
+    <!-- SECTION 2: UPLOAD 4 GALERI FOTO -->
+    <div class="card">
+      <h2>2. Kelola 4 Galeri Foto Utama</h2>
+      
+      <!-- Pratinjau Foto saat ini -->
+      <label>Foto Galeri Saat Ini di Web:</label>
+      <div class="preview-grid">
+        <div class="preview-box">
+          <small>Galeri 1</small>
+          <img id="prev1" src="img/1.png" alt="Galeri 1">
+        </div>
+        <div class="preview-box">
+          <small>Galeri 2</small>
+          <img id="prev2" src="img/2.png" alt="Galeri 2">
+        </div>
+        <div class="preview-box">
+          <small>Galeri 3</small>
+          <img id="prev3" src="img/3.png" alt="Galeri 3">
+        </div>
+        <div class="preview-box">
+          <small>Galeri 4</small>
+          <img id="prev4" src="img/4.png" alt="Galeri 4">
+        </div>
+      </div>
+
+      <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+
+      <!-- Input Slot File 1 - 4 -->
+      <div class="form-group">
+        <label for="foto1">Ganti Foto 1 (Opsional):</label>
+        <input type="file" id="foto1" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label for="foto2">Ganti Foto 2 (Opsional):</label>
+        <input type="file" id="foto2" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label for="foto3">Ganti Foto 3 (Opsional):</label>
+        <input type="file" id="foto3" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label for="foto4">Ganti Foto 4 (Opsional):</label>
+        <input type="file" id="foto4" accept="image/*">
+      </div>
+
+      <button id="btnUploadGaleri" class="btn-green">Simpan & Perbarui Galeri</button>
+      <div id="statusGaleri"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const IMGBB_API_KEY = "2bef31a578eb1f3eca8c882ead0d489d";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBe4l_92I4KseGnFdRex7ul8I-fEO1jUnI",
+      authDomain: "sdn1talun-home.firebaseapp.com",
+      databaseURL: "https://sdn1talun-home-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "sdn1talun-home",
+      storageBucket: "sdn1talun-home.firebasestorage.app",
+      messagingSenderId: "959069024123",
+      appId: "1:959069024123:web:ac4a762fd139ab6ab6d7de",
+      measurementId: "G-6JVMZSXY48"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Default 4 Foto Awal
+    let currentGallery = ["img/1.png", "img/2.png", "img/3.png", "img/4.png"];
+
+    // Ambil Data dari Firebase
+    get(ref(db, 'statistik')).then(snapshot => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        document.getElementById('siswaAktif').value = data.siswaAktif ?? 136;
+        document.getElementById('guruAktif').value = data.guruAktif ?? 10;
+        document.getElementById('tahunPengabdian').value = data.tahunPengabdian ?? 48;
+      }
+    });
+
+    get(ref(db, 'galeri')).then(snapshot => {
+      if (snapshot.exists()) {
+        const list = snapshot.val();
+        if (Array.isArray(list) && list.length >= 4) {
+          currentGallery = list;
+          document.getElementById('prev1').src = list[0];
+          document.getElementById('prev2').src = list[1];
+          document.getElementById('prev3').src = list[2];
+          document.getElementById('prev4').src = list[3];
+        }
+      }
+    });
+
+    // Simpan Statistik
+    document.getElementById('btnSimpanStat').addEventListener('click', () => {
+      const dataBaru = {
+        siswaAktif: parseInt(document.getElementById('siswaAktif').value) || 0,
+        guruAktif: parseInt(document.getElementById('guruAktif').value) || 0,
+        tahunPengabdian: parseInt(document.getElementById('tahunPengabdian').value) || 0
+      };
+
+      set(ref(db, 'statistik'), dataBaru)
+        .then(() => alert('Statistik berhasil diperbarui!'))
+        .catch(err => alert('Gagal: ' + err.message));
+    });
+
+    // Upload & Simpan Galeri
+    document.getElementById('btnUploadGaleri').addEventListener('click', async () => {
+      const btn = document.getElementById('btnUploadGaleri');
+      const status = document.getElementById('statusGaleri');
+      btn.disabled = true;
+
+      const fileInputs = [
+        document.getElementById('foto1'),
+        document.getElementById('foto2'),
+        document.getElementById('foto3'),
+        document.getElementById('foto4')
+      ];
+
+      const updatedGallery = [...currentGallery];
+
+      try {
+        for (let i = 0; i < 4; i++) {
+          const file = fileInputs[i].files[0];
+          if (file) {
+            status.textContent = `Mengunggah Foto ${i + 1}...`;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+              method: 'POST',
+              body: formData
+            });
+
+            const result = await res.json();
+            if (result.success) {
+              updatedGallery[i] = result.data.url;
+            }
+          }
+        }
+
+        status.textContent = 'Menyimpan ke database...';
+        await set(ref(db, 'galeri'), updatedGallery);
+
+        status.textContent = 'Selesai! 4 Galeri foto terupdate.';
+        alert('Berhasil memperbarui galeri foto!');
+        location.reload(); // Refresh halaman admin untuk memperbarui gambar preview
+      } catch (err) {
+        alert('Terjadi kesalahan: ' + err.message);
+        status.textContent = '';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
